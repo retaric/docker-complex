@@ -1,0 +1,22 @@
+language: generic
+sudo: required
+services:
+    - docker
+
+before_install:
+    - docker build -t yy119/react-test -f ./client/Dockerfile.dev ./client
+
+scripts:
+    - docker run -e CI=true yy119/react-test npm test
+
+after_success:
+    - docker build -t yy119/complex-client ./client
+    - docker build -t yy119/complex-server ./server
+    - docker build -t yy119/complex-nginx ./nginx
+    - docker build -t yy119/complex-worker ./worker
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    - docker push yy119/complex-client
+    - docker push yy119/complex-server
+    - docker push yy119/complex-nginx
+    - docker push yy119/complex-worker
+
